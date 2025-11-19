@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hotel Booking Wizard — Client App
 
-## Getting Started
+A clean, modern multi-step hotel booking wizard built with **Next.js + Tailwind CSS**.
+Supports saving/loading booking configurations and automatically persists progress.
 
-First, run the development server:
+---
+
+## ✅ **Requirements**
+
+Before running the app, make sure you have:
+
+* **Node.js ≥ 18**
+* **npm**, **yarn**, or **pnpm**
+* **Git** (optional)
+
+---
+
+## ▶️ **How to Run the Project**
+
+### **1. Install dependencies**
+
+```bash
+npm install
+```
+
+or
+
+```bash
+yarn install
+```
+
+### **2. Start development server**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+or
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+yarn dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### **3. Open the application**
 
-## Learn More
+Navigate to:
 
-To learn more about Next.js, take a look at the following resources:
+```
+http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🧩 **How the App Works (Client-Side Only)**
 
-## Deploy on Vercel
+### **1. Multi-Step Wizard**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The wizard includes **3 steps**:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Trip Setup** — basic trip information
+2. **Daily Configuration** — select hotels & meals per day
+3. **Summary** — final overview and price breakdown
+
+Navigation uses **Next/Back** buttons and shows the current step visually.
+
+---
+
+### **2. Local Storage Persistence**
+
+The app automatically stores:
+
+* step number
+* citizenship, destination, board type
+* start date, number of days
+* daily configuration
+* calculated totals
+
+You can close the browser and return later — all data is restored.
+
+---
+
+### **3. Saving and Loading Bookings**
+
+You can store multiple booking profiles:
+
+* Click **Save current**
+* Enter a name for your saved booking
+* Saved bookings appear under the card
+* Each saved booking has:
+
+  * **Load** (restore saved data)
+  * **Delete**
+
+---
+
+### **4. Reset Function**
+
+A **Reset all data** button clears:
+
+* all form fields
+* wizard state
+* local storage data
+
+---
+
+### **5. Responsive UI**
+
+* Tailwind CSS components
+* Mobile-optimized table view
+* Dark/light mode support
+
+---
+
+## 📂 Project Structure
+
+```
+app/
+│── page.tsx                  → main wizard container
+│── globals.css               → global + Tailwind component styles
+components/
+│── StepCard.tsx              → layout wrapper for each step
+│── InitialConfigForm.tsx     → step 1 form
+│── DailyConfigTable.tsx      → step 2 daily hotel/meal config
+│── SummaryPanels.tsx         → step 3 summary
+│── WizardHeader.tsx          → reset + save/load UI
+│── SavedBookingList.tsx      → list of saved bookings
+lib/
+│── useHotelWizard.ts         → all business logic + persistence
+│── pricingHelpers.ts         → hotel/meal price utilities
+│── dateHelpers.ts            → helpers for date operations
+data.ts                  → static countries, hotels, meals
+```
+
+---

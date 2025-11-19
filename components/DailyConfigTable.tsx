@@ -1,19 +1,7 @@
 "use client";
+
 import { formatDateLabel } from "../lib/dateHelpers";
-
-type DayConfig = {
-  date: string;
-  hotelId: number | null;
-  lunchId: number | null;
-  dinnerId: number | null;
-};
-
-type DayTotal = {
-  hotelPrice: number;
-  lunchPrice: number;
-  dinnerPrice: number;
-  total: number;
-};
+import type { DayConfig, DayTotal } from "../lib/types";
 
 type DailyConfigTableProps = {
   isInitialConfigComplete: boolean;
@@ -22,11 +10,11 @@ type DailyConfigTableProps = {
   boardType: string;
   destinationHotels: readonly { id: number; name: string; price: number }[];
   destinationMeals?:
-  | {
-    lunch: readonly { id: number; name: string; price: number }[];
-    dinner: readonly { id: number; name: string; price: number }[];
-  }
-  | undefined;
+    | {
+        lunch: readonly { id: number; name: string; price: number }[];
+        dinner: readonly { id: number; name: string; price: number }[];
+      }
+    | undefined;
   onHotelChange: (index: number, hotelId: string) => void;
   onLunchChange: (index: number, mealId: string) => void;
   onDinnerChange: (index: number, mealId: string) => void;
@@ -45,90 +33,208 @@ export default function DailyConfigTable({
 }: DailyConfigTableProps) {
   if (!isInitialConfigComplete) {
     return (
-      <>
-        <h2 className="text-lg font-semibold mb-4">
-          Step 2 – Daily Configuration
-        </h2>
-        <p className="text-sm text-slate-500">
-          Complete the initial configuration to see daily options.
-        </p>
-      </>
+      <div className="w-full rounded-md border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300">
+        Complete the initial configuration in Step 1 to configure daily hotels and
+        meals.
+      </div>
     );
   }
 
+  if (days.length === 0) {
+    return (
+      <div className="w-full rounded-md border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300">
+        No days configured yet. Set a start date and number of days in Step 1.
+      </div>
+    );
+  }
+
+  const mealsDisabled = boardType === "NB";
+
   return (
-    <>
-      <h2 className="text-lg font-semibold mb-4">
-        Step 2 – Daily Configuration
-      </h2>
-      {days.length === 0 ? (
-        <p className="text-sm text-slate-500">
-          No days configured yet. Set a start date and number of days.
-        </p>
-      ) : (
-        <>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-3 py-2 font-medium">Day</th>
-                  <th className="px-3 py-2 font-medium">Hotel</th>
-                  <th className="px-3 py-2 font-medium">Lunch</th>
-                  <th className="px-3 py-2 font-medium">Dinner</th>
-                  <th className="px-3 py-2 font-medium text-right">
-                    Day Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {days.map((day, index) => {
-                  const totals = dayTotals[index];
-                  const mealsDisabled = boardType === "NB";
-                  const lunchOptions = destinationMeals?.lunch ?? [];
-                  const dinnerOptions = destinationMeals?.dinner ?? [];
+    <div className="w-full space-y-4">
+      {/* Layout for Mobile */}
+      <div className="space-y-3 md:hidden">
+        {days.map((day, index) => {
+          const totals = dayTotals[index];
+          const lunchOptions = destinationMeals?.lunch ?? [];
+          const dinnerOptions = destinationMeals?.dinner ?? [];
 
-                  return (
-                    <tr
-                      key={index}
-                      className="border-b border-slate-100 last:border-0"
+          return (
+            <div
+              key={index}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-900/70"
+            >
+              <div className="mb-2 flex items-baseline justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Day {index + 1}
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {formatDateLabel(day.date)}
+                  </p>
+                </div>
+                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                  ${totals.total.toFixed(2)}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {/* Hotel */}
+                <div className="flex flex-col gap-1">
+                  <label className="form-field-label">Hotel</label>
+                  <div className="relative">
+                    <select
+                      value={day.hotelId ?? ""}
+                      onChange={(e) => onHotelChange(index, e.target.value)}
+                      className="form-field-input px-2 py-1 text-xs appearance-none pr-7"
                     >
-                      <td className="px-3 py-2 align-top">
-                        <div className="flex flex-col">
-                          <span className="font-medium">Day {index + 1}</span>
-                          <span className="text-xs text-slate-500">
-                            {formatDateLabel(day.date)}
-                          </span>
-                        </div>
-                      </td>
+                      <option value="" disabled>Select hotel</option>
+                      {destinationHotels.map((h) => (
+                        <option key={h.id} value={h.id}>
+                          {h.name} (${h.price})
+                        </option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[10px] text-slate-400 dark:text-slate-500">
+                      ▼
+                    </span>
+                  </div>
+                </div>
 
-                      <td className="px-3 py-2 align-top">
+                {/* Lunch */}
+                <div className="flex flex-col gap-1">
+                  <label className="form-field-label">Lunch</label>
+                  <div className="relative">
+                    <select
+                      value={day.lunchId ?? ""}
+                      onChange={(e) => onLunchChange(index, e.target.value)}
+                      disabled={mealsDisabled}
+                      className="form-field-input px-2 py-1 text-xs appearance-none pr-7 disabled:bg-slate-100 disabled:text-slate-400 dark:disabled:bg-slate-900 dark:disabled:text-slate-600"
+                    >
+                      <option value="" disabled>
+                        {mealsDisabled ? "Not available" : "Select lunch"}
+                      </option>
+                      {lunchOptions.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name} (${m.price})
+                        </option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[10px] text-slate-400 dark:text-slate-500">
+                      ▼
+                    </span>
+                  </div>
+                </div>
+
+                {/* Dinner */}
+                <div className="flex flex-col gap-1">
+                  <label className="form-field-label">Dinner</label>
+                  <div className="relative">
+                    <select
+                      value={day.dinnerId ?? ""}
+                      onChange={(e) => onDinnerChange(index, e.target.value)}
+                      disabled={mealsDisabled}
+                      className="form-field-input px-2 py-1 text-xs appearance-none pr-7 disabled:bg-slate-100 disabled:text-slate-400 dark:disabled:bg-slate-900 dark:disabled:text-slate-600"
+                    >
+                      <option value="" disabled>
+                        {mealsDisabled ? "Not available" : "Select dinner"}
+                      </option>
+                      {dinnerOptions.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name} (${m.price})
+                        </option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[10px] text-slate-400 dark:text-slate-500">
+                      ▼
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop layout (table) */}
+      <div className="hidden md:block">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-xs sm:text-sm border-separate border-spacing-y-1">
+            <thead>
+              <tr className="bg-slate-100 dark:bg-slate-800">
+                <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300 rounded-l-lg">
+                  Day
+                </th>
+                <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  Hotel
+                </th>
+                <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  Lunch
+                </th>
+                <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  Dinner
+                </th>
+                <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-right text-slate-600 dark:text-slate-300 rounded-r-lg">
+                  Day Total
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {days.map((day, index) => {
+                const totals = dayTotals[index];
+                const lunchOptions = destinationMeals?.lunch ?? [];
+                const dinnerOptions = destinationMeals?.dinner ?? [];
+
+                return (
+                  <tr
+                    key={index}
+                    className="bg-slate-50 dark:bg-slate-900/70 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    {/* Day + date */}
+                    <td className="px-3 py-2 align-top rounded-l-lg">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          Day {index + 1}
+                        </span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {formatDateLabel(day.date)}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Hotel */}
+                    <td className="px-3 py-2 align-top">
+                      <div className="relative">
                         <select
                           value={day.hotelId ?? ""}
                           onChange={(e) => onHotelChange(index, e.target.value)}
-                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                          className="form-field-input px-2 py-1 text-xs appearance-none pr-7"
                         >
-                          <option value="">Select hotel</option>
+                          <option value="" disabled>Select hotel</option>
                           {destinationHotels.map((h) => (
                             <option key={h.id} value={h.id}>
                               {h.name} (${h.price})
                             </option>
                           ))}
                         </select>
-                      </td>
+                        <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[10px] text-slate-400 dark:text-slate-500">
+                          ▼
+                        </span>
+                      </div>
+                    </td>
 
-                      <td className="px-3 py-2 align-top">
+                    {/* Lunch */}
+                    <td className="px-3 py-2 align-top">
+                      <div className="relative">
                         <select
                           value={day.lunchId ?? ""}
-                          onChange={(e) =>
-                            onLunchChange(index, e.target.value)
-                          }
+                          onChange={(e) => onLunchChange(index, e.target.value)}
                           disabled={mealsDisabled}
-                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-xs disabled:bg-slate-100 disabled:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                          className="form-field-input px-2 py-1 text-xs appearance-none pr-7 disabled:bg-slate-100 disabled:text-slate-400 dark:disabled:bg-slate-900 dark:disabled:text-slate-600"
                         >
-                          <option value="">
-                            {mealsDisabled
-                              ? "Not available"
-                              : "Select lunch"}
+                          <option value="" disabled>
+                            {mealsDisabled ? "Not available" : "Select lunch"}
                           </option>
                           {lunchOptions.map((m) => (
                             <option key={m.id} value={m.id}>
@@ -136,21 +242,23 @@ export default function DailyConfigTable({
                             </option>
                           ))}
                         </select>
-                      </td>
+                        <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[10px] text-slate-400 dark:text-slate-500">
+                          ▼
+                        </span>
+                      </div>
+                    </td>
 
-                      <td className="px-3 py-2 align-top">
+                    {/* Dinner */}
+                    <td className="px-3 py-2 align-top">
+                      <div className="relative">
                         <select
                           value={day.dinnerId ?? ""}
-                          onChange={(e) =>
-                            onDinnerChange(index, e.target.value)
-                          }
+                          onChange={(e) => onDinnerChange(index, e.target.value)}
                           disabled={mealsDisabled}
-                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-xs disabled:bg-slate-100 disabled:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                          className="form-field-input px-2 py-1 text-xs appearance-none pr-7 disabled:bg-slate-100 disabled:text-slate-400 dark:disabled:bg-slate-900 dark:disabled:text-slate-600"
                         >
-                          <option value="">
-                            {mealsDisabled
-                              ? "Not available"
-                              : "Select dinner"}
+                          <option value="" disabled>
+                            {mealsDisabled ? "Not available" : "Select dinner"}
                           </option>
                           {dinnerOptions.map((m) => (
                             <option key={m.id} value={m.id}>
@@ -158,24 +266,30 @@ export default function DailyConfigTable({
                             </option>
                           ))}
                         </select>
-                      </td>
+                        <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-[10px] text-slate-400 dark:text-slate-500">
+                          ▼
+                        </span>
+                      </div>
+                    </td>
 
-                      <td className="px-3 py-2 align-top text-right text-sm font-semibold">
+                    {/* Day total */}
+                    <td className="px-3 py-2 align-top text-right rounded-r-lg">
+                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                         ${totals.total.toFixed(2)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-          <p className="mt-3 text-xs text-slate-500">
-            Meal rules: Full Board = lunch &amp; dinner allowed, Half Board =
-            lunch or dinner (mutually exclusive), No Board = no meals.
-          </p>
-        </>
-      )}
-    </>
+      <p className="form-field-helper">
+        Meal rules: Full Board = lunch &amp; dinner allowed, Half Board = lunch or
+        dinner (mutually exclusive), No Board = no meals.
+      </p>
+    </div>
   );
 }

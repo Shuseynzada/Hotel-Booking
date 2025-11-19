@@ -1,26 +1,50 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components {
+  .form-field-label {
+    @apply text-sm font-medium text-slate-700 dark:text-slate-200;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  .form-field-input {
+    @apply w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 shadow-sm transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100;
+  }
+
+  .form-field-helper {
+    @apply text-xs text-slate-500 dark:text-slate-400;
+  }
+
+  .form-radio-group {
+    @apply mt-1 flex flex-wrap gap-3 text-sm;
+  }
+
+  .form-radio-label {
+    @apply inline-flex items-center gap-2 text-sm text-slate-800 dark:text-slate-100;
+  }
+
+  .form-number-input::-webkit-inner-spin-button,
+  .form-number-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .form-number-input {
+    appearance: textfield;  
+    -webkit-appearance: none;  
+    -moz-appearance: textfield;
+    padding-right: 3rem;
+    position: relative;
+  }
+
+  .form-number-wrapper {
+    position: relative;
+  }
+
+  .form-number-buttons {
+    @apply absolute right-1 top-[0] gap-1 flex flex-col h-[calc(100%-0.5rem)] justify-between;
+  }
+
+  .form-number-button {
+    @apply w-6 h-5 flex items-center justify-center rounded bg-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600;
+  }
+
 }
