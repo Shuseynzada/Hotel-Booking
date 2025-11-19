@@ -1,7 +1,6 @@
 "use client";
 
 import WizardHeader from "@/components/WizardHeader";
-import { useState } from "react";
 import { countries, boardTypes } from "../data";
 import InitialConfigForm from "../components/InitialConfigForm";
 import DailyConfigTable from "../components/DailyConfigTable";
@@ -28,6 +27,7 @@ export default function Page() {
     destinationHotels,
     destinationMeals,
     isInitialConfigComplete,
+    isStartDateValid,
     dayTotals,
     grandTotal,
 
@@ -55,12 +55,14 @@ export default function Page() {
     deleteBooking,
   } = useHotelWizard();
 
+
   const handleSaveBooking = () => {
     const name = window.prompt("Name this booking configuration:");
     if (!name) return;
     saveCurrentBooking(name);
   };
 
+  const todayIso = new Date().toISOString().slice(0, 10);
 
   const {
     errors: initialConfigErrors,
@@ -75,25 +77,22 @@ export default function Page() {
     boardType,
     startDate,
     daysCount,
+    isStartDateValid,
     goNext,
   });
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-8">
-        <WizardHeader
-          resetAll={resetAll}
-        />
+        <WizardHeader resetAll={resetAll} />
 
         <StepCard
           currentStep={step}
           totalSteps={3}
           title={
-            step === 1
-              ? "Trip Setup"
-              : step === 2
-                ? "Day-by-Day Selection"
-                : "Summary & Total"
+            step === 1 ? "Trip Setup" :
+              step === 2 ? "Day-by-Day Selection" :
+                "Summary & Total"
           }
           subtitle="Fill the details and move to the next step"
           onNext={handleNext}

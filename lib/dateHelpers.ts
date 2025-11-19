@@ -12,3 +12,15 @@ export function formatDateLabel(dateIso: string): string {
     day: "numeric",
   });
 }
+
+export function isTodayOrFuture(dateStr: string): boolean {
+  if (!dateStr) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const picked = new Date(dateStr);
+  picked.setHours(0, 0, 0, 0);
+
+  return picked >= today;
+}

@@ -17,6 +17,7 @@ type UseInitialStepValidationParams = {
   boardType: string;
   startDate: string;
   daysCount: number;
+  isStartDateValid: boolean;
   goNext: () => void;
 };
 
@@ -27,6 +28,7 @@ export function useInitialStepValidation({
   boardType,
   startDate,
   daysCount,
+  isStartDateValid,
   goNext,
 }: UseInitialStepValidationParams) {
   const [showErrors, setShowErrors] = useState(false);
@@ -34,7 +36,11 @@ export function useInitialStepValidation({
   const errors: InitialConfigErrors = useMemo(
     () => ({
       citizenship: !citizenship ? "Please select your citizenship." : undefined,
-      startDate: !startDate ? "Please choose a start date." : undefined,
+      startDate: !startDate
+        ? "Please choose a start date."
+        : !isStartDateValid
+          ? "Start date cannot be in the past."
+          : undefined,
       daysCount:
         !daysCount || daysCount <= 0
           ? "Number of days must be at least 1."

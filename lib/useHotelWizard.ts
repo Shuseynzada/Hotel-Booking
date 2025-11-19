@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { hotels, meals } from "../data";
 import { useLocalStorage } from "./useLocalStorage";
-import { addDays } from "./dateHelpers";
+import { addDays, isTodayOrFuture } from "./dateHelpers";
 import { getHotelPrice, getMealPrice } from "./pricingHelpers";
 import type { BoardCode, Destination, DayConfig, DayTotal } from "./types";
 
@@ -39,6 +39,8 @@ type SavedBooking = {
 
 const SAVED_BOOKINGS_KEY = "hotelWizardSavedBookings";
 
+
+
 export function useHotelWizard() {
     const [state, setState] = useLocalStorage<WizardState>(
         STORAGE_KEY,
@@ -59,6 +61,12 @@ export function useHotelWizard() {
         daysCount,
         days,
     } = state;
+
+    const isStartDateValid = useMemo(
+        () => isTodayOrFuture(startDate),
+        [startDate]
+    );
+
 
     const updateState = useCallback(
         (patch: Partial<WizardState>) => {
@@ -104,8 +112,8 @@ export function useHotelWizard() {
     );
 
     const isInitialConfigComplete = useMemo(
-        () => Boolean(citizenship && destination && startDate && daysCount > 0),
-        [citizenship, destination, startDate, daysCount]
+        () => Boolean(citizenship && destination && isStartDateValid && daysCount > 0),
+        [citizenship, destination, isStartDateValid, daysCount]
     );
 
     // Sync days[] when startDate or daysCount change
@@ -262,6 +270,7 @@ export function useHotelWizard() {
         destinationHotels,
         destinationMeals,
         isInitialConfigComplete,
+        isStartDateValid,
         dayTotals,
         grandTotal,
 
