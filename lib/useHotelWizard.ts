@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { hotels, meals } from "../data";
 import { useLocalStorage } from "./useLocalStorage";
 import { addDays, isTodayOrFuture } from "./dateHelpers";
@@ -51,6 +51,13 @@ export function useHotelWizard() {
     const [savedBookings, setSavedBookings] = useLocalStorage<
         SavedBooking[]
     >(SAVED_BOOKINGS_KEY, [], ONE_DAY_MS * 7);
+
+    const [isBootstrapping, setIsBootstrapping] = useState(true);
+    const [isLoadingBooking, setIsLoadingBooking] = useState(false);
+
+    useEffect(() => {
+        setIsBootstrapping(false);
+    }, []);
 
     const {
         step,
@@ -229,7 +236,7 @@ export function useHotelWizard() {
         () => dayTotals.reduce((sum, d) => sum + d.total, 0),
         [dayTotals]
     );
-
+    
 
     // Save functions
     const saveCurrentBooking = (name: string) => {
@@ -245,16 +252,22 @@ export function useHotelWizard() {
         setSavedBookings((prev) => [...prev, newItem]);
     };
 
+
     const loadBooking = (id: string) => {
         const found = savedBookings.find((s) => s.id === id);
         if (!found) return;
+
+        setIsLoadingBooking(true);
         setState(found.state);
+        setTimeout(() => setIsLoadingBooking(false), 250);
     };
+
 
     const deleteBooking = (id: string) => {
         setSavedBookings((prev) => prev.filter((s) => s.id !== id));
     };
-    
+
+    const isLoading = isBootstrapping || isLoadingBooking;
 
     return {
         // state
@@ -297,5 +310,7 @@ export function useHotelWizard() {
         saveCurrentBooking,
         loadBooking,
         deleteBooking,
+
+        isLoading,
     };
 }

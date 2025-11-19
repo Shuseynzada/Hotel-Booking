@@ -9,15 +9,6 @@ export const metadata: Metadata = {
   keywords: ["Next.js", "Booking Wizard", "Travel", "Hotels"],
   authors: [{ name: "Shamkhal Huseynzade" }],
   creator: "Shamkhal Huseynzade",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-  ],
   openGraph: {
     title: "Hotel Booking Wizard",
     description: "A clean and simple travel configuration wizard.",

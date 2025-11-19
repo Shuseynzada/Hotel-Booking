@@ -13,6 +13,7 @@ type StepCardProps = {
   disableBack?: boolean;
   disableNext?: boolean;
   nextTooltip?: string;
+  isLoading: boolean;
 };
 
 export default function StepCard({
@@ -26,12 +27,23 @@ export default function StepCard({
   disableBack = false,
   disableNext = false,
   nextTooltip,
+  isLoading,
 }: StepCardProps) {
   const showBack = Boolean(onBack);
   const showNext = Boolean(onNext);
 
+  console.log(isLoading)
+
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm flex flex-col gap-6 px-5 py-6 sm:px-7 sm:py-7 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+    <div className="relative rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm flex flex-col gap-6 px-5 py-6 sm:px-7 sm:py-7 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-slate-900/40 backdrop-blur-sm">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-500" />
+        </div>
+      )}
+
       {/* Header: top dots + step label */}
       <div className="flex flex-col items-center gap-1">
         <Dots currentStep={currentStep} totalSteps={totalSteps} />

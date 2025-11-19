@@ -53,6 +53,8 @@ export default function Page() {
     saveCurrentBooking,
     loadBooking,
     deleteBooking,
+    
+    isLoading,
   } = useHotelWizard();
 
 
@@ -104,6 +106,8 @@ export default function Page() {
           nextTooltip={
             step === 1 && showErrors ? nextTooltipText : undefined
           }
+
+          isLoading={isLoading}
         >
           {step === 1 && (
             <InitialConfigForm
